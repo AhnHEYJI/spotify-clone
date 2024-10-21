@@ -2,10 +2,10 @@
 import { usePathname } from "next/navigation";
 import { HiHome } from "react-icons/hi";
 import { BiSearch } from "react-icons/bi";
-import React,{useMemo} from "react";
+import React, { useMemo } from "react";
 import Box from "./Box";
 import SidebarItem from "./Sidebarltem";
-
+import Library from "./Library";
 
 interface SidebarProps {
   children: React.ReactNode;
@@ -25,12 +25,14 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
         label: "Search",
         active: pathname === "/search",
         href: "/search",
-      }
-    ],[pathname]
+      },
+    ],
+    [pathname]
   );
-  return <div
-  className="flex h-full">
-    <div className="hidden
+  return (
+    <div className="flex h-full">
+      <div
+        className="hidden
     md:flex
     flex-col
     gap-y-2
@@ -39,10 +41,10 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
     w-[300px]
     p-2
     "
-    
-    >
-    <Box>
-      <div className="
+      >
+        <Box>
+          <div
+            className="
       flex
       flex-col
       gep-y-4
@@ -50,22 +52,20 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
       py-4
 
       
-      ">
-        {routes.map((item) =>(
-          <SidebarItem
-          key={item.lable}
-          {...item}
-
-          
-          />
-        ))}
+      "
+          >
+            {routes.map((item) => (
+              <SidebarItem key={item.lable} {...item} />
+            ))}
+          </div>
+        </Box>
+        <Box className="overflow-y-auto h-full">
+          <Library />
+        </Box>
       </div>
-    </Box>
-    <Box className="overflow-y-auto h-full">
-      Song Library
-    </Box>
+      <main className="h-full flex-1 overflow-y-auto py-2">{children}</main>
     </div>
-    </div>;
+  );
 };
 
 export default Sidebar;
