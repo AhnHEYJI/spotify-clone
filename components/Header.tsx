@@ -4,17 +4,37 @@ import { twMerge } from "tailwind-merge";
 import { RxCaretLeft, RxCaretRight } from "react-icons/rx";
 import { HiHome } from "react-icons/hi";
 import { BiSearch } from "react-icons/bi";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import useAuthModal from "@/hooks/useAuthModal";
+import { useUser } from "@/hooks/useUser";  // 커스텀 훅 확인 필요
+import { FaUserAlt } from "react-icons/fa";
+
 import Button from "./Button";
+import {toast} from "react-hot-toast"
 
 interface HeaderProps {
   children: React.ReactNode;
   className?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ children, className }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  children, className 
+}) => {
+  const authModal = useAuthModal();
   const router = useRouter();
-  const handleLogout = () => {
-    //Handle logout in the future
+  const supabaseClient = useSupabaseClient();
+  const { user } = useUser();  // 유저 정보 가져오기
+
+  const handleLogout = async () => { 
+    const { error } = await supabaseClient.auth.signOut();  // Supabase 로그아웃
+    router.refresh();
+    // 로그아웃 후 페이지 새로 고침 또는 리다이렉트
+    if (error) {
+      toast.error(error.message);
+    }
+    else{
+      toast.success('Logged out!')
+    }
   };
 
   return (
@@ -107,27 +127,44 @@ const Header: React.FC<HeaderProps> = ({ children, className }) => {
         <div
           className="
         flex
-        justipy-between
+        justify-between
         items-center
         gap-x-4
         "
         >
+          {user ? (
+            <div className="
+            flex gap-x-4 items-center">
+              <Button onClick={handleLogout}
+              className="bg-white px-6 py-2"
+              >
+                Logout
+              </Button>
+              <Button
+              onClick={() => router.push('/account')}  // 계정 페이지로 이동, 경로 확인 필요
+              className="bg-white"
+              >
+                <FaUserAlt/>
+              </Button>
+
+            </div>
+          ) : (
           <>
             <div>
               <Button
-                onClick={() => {}}
+                onClick={authModal.onOpen}  // Sign Up 모달 호출
                 className="
               bg-transparent
               text-neutral-300
               font-medium
               "
               >
-                Sign UP
+                Sign Up
               </Button>
             </div>
             <div>
               <Button
-                onClick={() => {}}
+                onClick={authModal.onOpen}  // Log In 모달 호출
                 className="
               bg-white
               px-6
@@ -138,11 +175,12 @@ const Header: React.FC<HeaderProps> = ({ children, className }) => {
               </Button>
             </div>
           </>
+          )}
         </div>
       </div>
       {children}
     </div>
   );
-};
+}
 
-export default Header;
+export default Header; 
